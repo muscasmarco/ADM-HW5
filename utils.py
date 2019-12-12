@@ -8,6 +8,8 @@ Created on Mon Dec  9 16:57:02 2019
 import networkx as nx
 import time # When not testing, this 'import time' can be omitted.
 from dataset_loader import DatasetLoader
+import pickle
+import os 
 
 def make_graph(vertices_dataset, edges_dataset): 
     graph = nx.Graph()    
@@ -18,19 +20,53 @@ def make_graph(vertices_dataset, edges_dataset):
     
     return graph
 
+def make_adj_list(vertices_df, edges_df):
+    
+    file_path = './adj_list.pkl'
+    adj_list = None
+    
+    if os.path.isfile(file_path):
+        adj_list = pickle.load(open(file_path,'rb'))
+    else:
+    
+        adj_list = dict.fromkeys(vertices_df.index, [])
+        
+        print_progress = True # Set this flag to True to print progress percentage
+        
+        dataset_size = len(edges_df)
+        for index, edge in edges_df.iterrows():
+            
+            if index % 10000 == 0 and print_progress:
+                print('%4f' % (index/dataset_size * 100))
+                
+                
+            node1, node2, dist = edge['node-id-1'],edge['node-id-2'],edge['distance']
+            
+            if node1 in adj_list.keys():
+                adj_list[node1].append([node2,dist])
+            
+        ''' Write to file '''
+        f = open(file_path, 'wb')
+        pickle.dump(adj_list, f)
+        f.close()
+
+    return adj_list
+    
 
 if __name__ == '__main__':
     
-    vertices_dataset_loader = DatasetLoader('coordinates', dataset_root_path='./dataset/')
-    edges_dataset_loader = DatasetLoader('distance',dataset_root_path='./dataset/')
+    vertices_dataset_loader = DatasetLoader('coordinates')
+    edges_dataset_loader = DatasetLoader('distance')
     
     vertices_dataset = vertices_dataset_loader.dataset
     edges_dataset = edges_dataset_loader.dataset
     
     ''' Test for making the dataset '''
+    print('Starting test...')
     start_t = time.time()
-    g = make_graph(vertices_dataset, edges_dataset)    
+    #g = make_graph(vertices_dataset, edges_dataset)    
+    adj_list = make_adj_list(vertices_dataset, edges_dataset)
     end_t = time.time() - start_t
     
-    print('%f seconds for building the whole graph. ' % end_t)
+    print('%f seconds for building the adj list. ' % end_t)
     ''' End test here '''
