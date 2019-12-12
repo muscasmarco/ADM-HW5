@@ -1,2 +1,7 @@
 ./dataset/*.co
 ./dataset/*.gr
+*.pkl
+
+__pycache__/*
+__pycache__/
+dataset/
