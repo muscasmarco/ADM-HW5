@@ -20,16 +20,28 @@ def make_graph(vertices_dataset, edges_dataset):
     
     return graph
 
-def make_adj_list(vertices_df, edges_df):
+def make_adj_list(distance_metric='distance'): # Can also be 'time-distance'
     
-    file_path = './adj_list.pkl'
+    if distance_metric not in ['distance','time-distance']:
+        print("Distance metric not valid, please choose 'distance' or 'time-distance'. ")
+        return -1
+    
+    vertices_dataset_loader = DatasetLoader('coordinates')
+    edges_dataset_loader = DatasetLoader('distance')
+    
+    vertices_df = vertices_dataset_loader.dataset
+    edges_df = edges_dataset_loader.dataset
+    
+    
+    file_path = str('./adj_list_%s.pkl' % distance_metric)
     adj_list = None
     
     if os.path.isfile(file_path):
-        adj_list = pickle.load(open(file_path,'rb'))
+        adj_list = pickle.load(open(file_path,'rb')) # The file exists, no need to build it from scratch.
+        
     else:
     
-        adj_list = dict.fromkeys(vertices_df.index, [])
+        adj_list = {i:{} for i in vertices_df.index}
         
         print_progress = True # Set this flag to True to print progress percentage
         
@@ -43,7 +55,7 @@ def make_adj_list(vertices_df, edges_df):
             node1, node2, dist = edge['node-id-1'],edge['node-id-2'],edge['distance']
             
             if node1 in adj_list.keys():
-                adj_list[node1].append([node2,dist])
+                adj_list[node1][node2] = dist
             
         ''' Write to file '''
         f = open(file_path, 'wb')
@@ -52,20 +64,15 @@ def make_adj_list(vertices_df, edges_df):
 
     return adj_list
     
-
+   
 if __name__ == '__main__':
     
-    vertices_dataset_loader = DatasetLoader('coordinates')
-    edges_dataset_loader = DatasetLoader('distance')
-    
-    vertices_dataset = vertices_dataset_loader.dataset
-    edges_dataset = edges_dataset_loader.dataset
     
     ''' Test for making the dataset '''
     print('Starting test...')
     start_t = time.time()
     #g = make_graph(vertices_dataset, edges_dataset)    
-    adj_list = make_adj_list(vertices_dataset, edges_dataset)
+    adj_list = make_adj_list()
     end_t = time.time() - start_t
     
     print('%f seconds for building the adj list. ' % end_t)
