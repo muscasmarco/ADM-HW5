@@ -57,5 +57,5 @@ def dijkstra_h(adjacency, start, end):
     shortest_path.append(start)
     shortest_path.reverse()
         
-    print(shortest_dist[end], shortest_path)
+     return shortest_dist[end], shortest_path
 
