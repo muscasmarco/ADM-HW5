@@ -56,7 +56,7 @@ def Dijkstra(adjacency,start,end):
     return(shortest_dist[end], shortest_path)
             
     
-Dijkstra(adjacency,"a","d")  
+res = Dijkstra(adjacency,"a","d")  
 
 
 # In[ ]:

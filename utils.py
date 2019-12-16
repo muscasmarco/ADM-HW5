@@ -27,7 +27,7 @@ def make_adj_list(distance_metric='distance'): # Can also be 'time-distance'
         return -1
     
     vertices_dataset_loader = DatasetLoader('coordinates')
-    edges_dataset_loader = DatasetLoader('distance')
+    edges_dataset_loader = DatasetLoader(distance_metric)
     
     vertices_df = vertices_dataset_loader.dataset
     edges_df = edges_dataset_loader.dataset
