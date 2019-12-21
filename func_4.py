@@ -9,108 +9,69 @@ from utils import make_adj_list
 from path_finder import dijkstra_h
 from scipy.spatial import distance
 from dataset_loader import DatasetLoader
-from itertools import permutations
 
-def distance_nodes(p1, p2):
-        
-    coordinates_list = DatasetLoader('coordinates').dataset
+''' This function is used to get an approximate distance between two nodes given their ids. 
+    It will act as an alternative metric to the distances defined in
+    the datasets (distance, time distance and network distance) '''
     
-    p1_row = coordinates_list[coordinates_list['node-id'] == p1]
+def distance_nodes(p1, p2, coordinates_df):
+            
+    p1_row = coordinates_df[coordinates_df['node-id'] == p1]
     p1_x, p1_y = p1_row.latitude.values[0], p1_row.longitude.values[0]
     
-    p2_row = coordinates_list[coordinates_list['node-id'] == p2]
+    p2_row = coordinates_df[coordinates_df['node-id'] == p2]
     p2_x, p2_y = p2_row.latitude.values[0], p2_row.longitude.values[0]
     
     p1_p = (p1_x, p1_y)
     p2_p = (p2_x, p2_y)
     
     return distance.euclidean(p1_p, p2_p)
-    
-    
-def get_shortest_approximate_route(points, coordinates_list):
-    points_permutations = list(permutations(points))
-    
-    performance = []
-    
-    for perm in points_permutations:
-        total_dist = 0
-        n1 = perm[0]
-        for n2 in perm[2:]:
-            total_dist += distance_nodes(n1, n2, coordinates_list)
-            performance
-            n1 = n2
-            
-        performance.append([perm, total_dist])
-        
-    performance.sort(key=lambda x : x[1])
-    return performance[0][1], performance[0][0]
-    
-    
-                        
-def shortest_route(adj_list, start, checkpoints, end):
-    coord = DatasetLoader('coordinates').dataset
-      
-    most_promising_sequence = get_shortest_approximate_route([start]+checkpoints+[end], coord)
-    
-    print(most_promising_sequence[0])
-    most_promising_sequence = most_promising_sequence[1]    
 
-    total_dist = 0
-    total_seq = []
-    ''' For each couple compute dijkstra'''
-    for n1,n2 in zip(most_promising_sequence[:len(most_promising_sequence)-1], most_promising_sequence[1:]):
-        dist, seq = dijkstra_h(adj_list, n1, n2)
-        
-        print(seq)
-        
-        if dist == None or seq == None: # No path available
-            return None, None
-        
-        total_dist += dist
-        total_seq += seq
-        
-    return total_seq, total_dist
-
-def path_len_n(adj_list,start, n):
+ 
+''' The goal of this function is to determine an approximation of the 
+    ordering of the nodes which allows us to visit them all.
+    We'll need to define a starting point (start) and a destination (end).
     
+    In the list (between) will end up all the other nodes we want to visit
+    before arriving at the destination.
+''' 
+def get_short_between_path(between, start, end, coordinates_df):
     
-    if n == 0:
-        return start
-    else:
-        res = []
-        k = list(adj_list[start].keys())[0]    
-        print(k)
-        if k != None:
-            res.append(k)
-            path_len_n(adj_list, k, n-1)    
-            
-    return res
-    
-def get_short_between_path(between, start, end):
-    
-    if len(between) == 0:
+    if len(between) == 0: # Base case #1.
         return []
     
-    if len(between) == 1:
+    if len(between) == 1: # Base case #2. Odd number of places to visit? Here's the solution.
         return between
     
-    if len(between) > 1:
-        first_destination_distances = [(n, distance_nodes(start, n)) for n in between]
+    if len(between) > 1: # Inductive step
+        
+        # Find the closest node to the actual starting point
+        first_destination_distances = [(n, distance_nodes(start, n, coordinates_df)) for n in between]
         first_destination_distances.sort(key=lambda x:x[1])
         first_destination = first_destination_distances[0][0]
             
-        last_destination_distances = [(n, distance_nodes(end, n)) for n in between if n != first_destination]
+        # Find the closes node to the actual ending point
+        last_destination_distances = [(n, distance_nodes(end, n, coordinates_df)) for n in between if n != first_destination]
         last_destination_distances.sort(key=lambda x:x[1])
         last_destination= last_destination_distances[0][0]
-            
+        
+        # They have been visited, remove from between
         between.remove(first_destination)
         between.remove(last_destination)
         #print(start, between, end)
         
-        return [first_destination] + get_short_between_path(between, first_destination, last_destination)+ [last_destination]
+        # Proceed with the next step now that you found the consecutive nodes from start and end (first_destination, last_destination)
+        return [first_destination] + get_short_between_path(between, first_destination, last_destination, coordinates_df)+ [last_destination]
     
-
+    
+''' This is the function that does what functionality #4 asks.
+    - It assumes that the first element in path is the starting point.
+    - It assumes that the last element in path is the destination. 
+'''
 def find_shortest_visiting_path(adj_list, path):
+    
+    coordinates_df = DatasetLoader('coordinates').dataset
+    
     # Get Start, end, between
     start = path[0]
     end = path[-1]
@@ -121,28 +82,17 @@ def find_shortest_visiting_path(adj_list, path):
     
     if len(between) == 0: # No destinations in between, just get distance from starting point to end (A -> B)
         total_distance, total_path = dijkstra_h(adj_list, start, end)
-    
-    
-    #elif len(between) == 1: # Case: A -> B -> C
-    #    tmp_dist_1, tmp_path_1 = dijkstra_h(adj_list, start, between[0]) # A -> B
-    #    tmp_dist_2, tmp_path_2 = dijkstra_h(adj_list, between[0], end) # B -> 
-    #    
-    #    total_distance += (tmp_dist_1 + tmp_dist_2) # distance (A -> B -> C)
-    #    total_path.extend(tmp_path_1) # Adding path from A -> B
-    #    total_path.extend(tmp_path_2[1:]) # Adding path from B -> C | We do not actually want B to be included, hence the [1:]
-      
-    
     else:
+        between = path # Because the recursive functions need all nodes. The assumptions in the explanation hold true.
+        shortest_estimated_path = get_short_between_path(between, start, end, coordinates_df)
         
-        between = path
-        shortest_estimated_path = get_short_between_path(between, start, end)
-        
+        # Now that you have an ideal path, find the actual path using dijkstra (with heuristics)
         for i in range(0, len(shortest_estimated_path)-1):
             tmp_dist, tmp_path = dijkstra_h(adj_list, shortest_estimated_path[i], shortest_estimated_path[i+1])
             total_distance += tmp_dist
             total_path.extend(tmp_path)
     
-    # Avoiding linked duplicates
+    # Avoiding linked duplicates like going from n1 to n1
     total_path_no_linked_dup = []
     for i in range(len(total_path)-1):
         node_1 = total_path[i]
