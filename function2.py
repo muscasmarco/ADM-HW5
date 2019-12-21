@@ -1,15 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
-
-
 from path_finder import dijkstra_h
 from utils import make_adj_list
 from dataset_loader import DatasetLoader
-
-
-# In[ ]:
 
 
 def duel_permutation(nodes) :
@@ -26,7 +20,7 @@ def find_best_initial(nodes, adj_list):
     nodes_permutations = duel_permutation(nodes)
     
     edge_set = list()
-    min_dist = 100000000000
+    min_dist = float('inf')
     for perm in nodes_permutations:
         dist, seq = dijkstra_h(adj_list, perm[0], perm[1])
         if dist < min_dist :
@@ -43,13 +37,16 @@ def find_best_initial(nodes, adj_list):
 
 
 def best_tree(nodes, adj_list) :
-    visited_nodes = find_best_initial(nodes, adj_list)[1]
-    distance = find_best_initial(nodes, adj_list)[0]
+    
+    res = find_best_initial(nodes, adj_list)
+    visited_nodes = res[1]
+    distance = res[0]
+    edge_set = res[2]
+
     must_visited = [x for x in nodes if x not in visited_nodes ]
-    edge_set = find_best_initial(nodes, adj_list)[2]
     
     while must_visited :
-        min_dist = 100000000000
+        min_dist = float('inf')
         for i in must_visited :
             for j in visited_nodes :
                 dist, seq = dijkstra_h(adj_list, i , j)
@@ -68,11 +65,8 @@ def best_tree(nodes, adj_list) :
     return(edge_set,distance)   
 
 
-
-
-
-
+''' Testing '''
 
 adj_list = make_adj_list()
-best_tree([3,6,7],adj_list)
+best_tree([1,1802,1805],adj_list)
 
