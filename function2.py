@@ -4,7 +4,7 @@
 from path_finder import dijkstra_h
 from utils import make_adj_list
 from dataset_loader import DatasetLoader
-
+import time
 
 def duel_permutation(nodes) :
     duel_perm = list()
@@ -66,7 +66,10 @@ def best_tree(nodes, adj_list) :
 
 
 ''' Testing '''
-
 adj_list = make_adj_list()
-best_tree([1,1802,1805],adj_list)
 
+start_t = time.time()
+best_tree([5,345],adj_list)
+end_t = time.time() - start_t
+
+print(end_t, ' seconds')

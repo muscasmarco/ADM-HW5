@@ -28,7 +28,7 @@ def dijkstra_h(adjacency, start, end):
     while node != end and len(not_visited) > 0:
         
         
-        print('Steps: ',len(pred)/2, ' | Not visited: ',len(not_visited),' Pred', pred.keys())
+        #print('Steps: ',len(pred), ' | Not visited: ',len(not_visited),' Pred', pred.keys())
             
         node = min(not_visited.keys(), key=lambda x:shortest_dist[x])
         
@@ -49,6 +49,7 @@ def dijkstra_h(adjacency, start, end):
             current = pred[current]
         
         except Exception as e:
+            print(e)
             return None, None
             
     shortest_path.append(start)

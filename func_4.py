@@ -6,12 +6,10 @@ Created on Thu Dec 12 10:57:49 2019
 @author: marco
 """
 from utils import make_adj_list
-from path_finder import get_n_steps_neighbours
 from path_finder import dijkstra_h
 from scipy.spatial import distance
 from dataset_loader import DatasetLoader
 from itertools import permutations
-from matplotlib import pyplot as plt
 
 def distance_nodes(p1, p2):
         
@@ -146,18 +144,6 @@ if __name__ == '__main__':
         res = dijkstra_h(adj_list, start, between[0]) + dijkstra_h(adj_list, between[0], end)[1:]
     else:
         
-        ''' Take this logic and apply it recursively towards the center of between '''
-        '''
-        first_destination_distances = [(n, distance_nodes(start, n)) for n in between]
-        first_destination_distances.sort(key=lambda x:x[1])
-        first_destination = first_destination_distances[0][0]
-        
-        last_destination_distances = [(n, distance_nodes(end, n)) for n in between if n != first_destination]
-        last_destination_distances.sort(key=lambda x:x[1])
-        last_destination= last_destination_distances[0][0]
-        print(first_destination)
-        print(last_destination)
-        '''
         between = path
         shortest_estimated_path = get_short_between_path(between, start, end)
         res = [0, []]
