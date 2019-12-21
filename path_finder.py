@@ -24,9 +24,9 @@ def dijkstra_h(adjacency, start, end):
     shortest_dist[start] = 0
     
     node = start
-    print('\n\n Trying to find a path between ', start, ' and ', end)    
+    #print('\n Trying to find a path between ', start, ' and ', end)   
+    
     while node != end and len(not_visited) > 0:
-        
         
         #print('Steps: ',len(pred), ' | Not visited: ',len(not_visited),' Pred', pred.keys())
             
@@ -43,6 +43,7 @@ def dijkstra_h(adjacency, start, end):
                 pred[neighbour] = node
         
     current = end
+    
     while current != start :
         try :
             shortest_path.append(current)
@@ -54,6 +55,9 @@ def dijkstra_h(adjacency, start, end):
             
     shortest_path.append(start)
     shortest_path.reverse()
-        
+    
+    #print('shortest_dist: ', shortest_dist[end])
+    #print('shortest path: ',shortest_path)
+    
     return shortest_dist[end], shortest_path
 
