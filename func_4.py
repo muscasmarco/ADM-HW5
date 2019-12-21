@@ -86,16 +86,6 @@ def path_len_n(adj_list,start, n):
             
     return res
     
-def find_shortest_visiting_path(adj_list, path):
-    
-    start = path[0]
-    end = path[-1]
-    between = path[1:(len(path)-1)]
-    
-    
-    
-    print(start, between, end)
-
 def get_short_between_path(between, start, end):
     
     if len(between) == 0:
@@ -119,6 +109,50 @@ def get_short_between_path(between, start, end):
         
         return [first_destination] + get_short_between_path(between, first_destination, last_destination)+ [last_destination]
     
+
+def find_shortest_visiting_path(adj_list, path):
+    # Get Start, end, between
+    start = path[0]
+    end = path[-1]
+    between = path[1:len(path)-1]
+    
+    total_distance = 0
+    total_path = []
+    
+    if len(between) == 0: # No destinations in between, just get distance from starting point to end (A -> B)
+        total_distance, total_path = dijkstra_h(adj_list, start, end)
+    
+    
+    #elif len(between) == 1: # Case: A -> B -> C
+    #    tmp_dist_1, tmp_path_1 = dijkstra_h(adj_list, start, between[0]) # A -> B
+    #    tmp_dist_2, tmp_path_2 = dijkstra_h(adj_list, between[0], end) # B -> 
+    #    
+    #    total_distance += (tmp_dist_1 + tmp_dist_2) # distance (A -> B -> C)
+    #    total_path.extend(tmp_path_1) # Adding path from A -> B
+    #    total_path.extend(tmp_path_2[1:]) # Adding path from B -> C | We do not actually want B to be included, hence the [1:]
+      
+    
+    else:
+        
+        between = path
+        shortest_estimated_path = get_short_between_path(between, start, end)
+        
+        for i in range(0, len(shortest_estimated_path)-1):
+            tmp_dist, tmp_path = dijkstra_h(adj_list, shortest_estimated_path[i], shortest_estimated_path[i+1])
+            total_distance += tmp_dist
+            total_path.extend(tmp_path)
+    
+    # Avoiding linked duplicates
+    total_path_no_linked_dup = []
+    for i in range(len(total_path)-1):
+        node_1 = total_path[i]
+        node_2 = total_path[i+1]
+        
+        if node_1 != node_2:
+            total_path_no_linked_dup.append((node_1, node_2))
+    
+    return total_distance, total_path_no_linked_dup
+    
 if __name__ == '__main__':
     
     ''' Setup '''
@@ -129,34 +163,13 @@ if __name__ == '__main__':
     
     '''Tests'''
     #path = [1,1803, 1802, 1050020, 1050021, 2590, 1805]
-    #path = [1, 4146, 1803, 1802, 1050020, 4142, 4518]
-    path = [1,1803, 1805]
+    path = [1, 1050021, 1803, 1050020, 2590, 1802, 1805]
+    #path = [1,1803, 1050021, 1805]
     
-    ''' Pre sort using estimated distance '''
-    # Get Start, end, between
-    start = path[0]
-    end = path[-1]
-    between = path[1:len(path)-1]
-    
-    if len(between) == 0: # No destinations in between, just get distance from starting point to end
-        res = dijkstra_h(adj_list, start, end)
-    elif len(between) == 1:
-        res = dijkstra_h(adj_list, start, between[0]) + dijkstra_h(adj_list, between[0], end)[1:]
-    else:
-        
-        between = path
-        shortest_estimated_path = get_short_between_path(between, start, end)
-        res = [0, []]
-        for i in range(0, len(shortest_estimated_path)-1):
-            tmp_res = dijkstra_h(adj_list, shortest_estimated_path[i], shortest_estimated_path[i+1])
-            res[0] += tmp_res[0]
-            res[1].append((tmp_res[1][0], tmp_res[1][1]))
-    
-    
-    
-    
-    
-    
+    travel_distance, itinerary = find_shortest_visiting_path(adj_list, path)
+       
+    print('Distance: ', travel_distance)
+    print('Itinerary: ', itinerary)
     
     
     
