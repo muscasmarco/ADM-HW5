@@ -15,8 +15,13 @@ def shortest_ordered_path(initial, node_set, adj_list) :
     for i in range(len(node_set) - 1) :
         dist, seq = dijkstra_h(adj_list, node_set[i] , node_set[i+1])
         path += seq[1:]
+    
+    res = []
+    for i in range(len(path)-1):
+        t = (path[i], path[i+1])
+        res.append(t)
         
-    return(path)
+    return res
 
 
 
