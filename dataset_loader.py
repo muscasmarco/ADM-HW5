@@ -11,15 +11,15 @@ class DatasetLoader:
         self.name = name 
         
         if self.name == 'coordinates':
-            self.dataset_path = dataset_root_path+'USA-road-'+self.name+'.CAL.co'
+            self.dataset_root_path = dataset_root_path+'USA-road-'+self.name+'.CAL.co'
             self.cols = ['type','node-id', 'latitude','longitude']
 
         elif self.name == 'distance' or self.name == 'time-distance':
-            self.dataset_path = dataset_root_path+'USA-road-'+self.name+'.CAL.gr'
+            self.dataset_root_path = dataset_root_path+'USA-road-'+self.name+'.CAL.gr'
             ''' Side note, distance and time-distance could have the same name for reusability'''
             self.cols = ['type','node-id-1', 'node-id-2', 'distance']	
 
-        self.dataset = pd.read_csv(self.dataset_path, sep=' ', header=None) # The first row is not a header.
+        self.dataset = pd.read_csv(self.dataset_root_path, sep=' ', header=None) # The first row is not a header.
         self.dataset.columns = self.cols # Assigning name to the columns of the newly made dataset
 
     def get_dataset(self):
