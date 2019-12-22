@@ -38,13 +38,14 @@ def print_itinerary(adj_list, itinerary, delta_zoom=0.1):
 
     cols = ['lat', 'long']
     points_df = pd.DataFrame(data=coord_points, columns=cols)
-    print(points_df)
+    #print(points_df)
     
     ''' Load shapefile for US '''
     us_shp = '/home/marco/workspace/git/ADM-HW5/shapefiles/us/tl_2019_us_state.shp'
     us_map_df = gpd.read_file(us_shp)
     
-    fig, ax = plt.subplots(figsize=(20,20))
+    fig, ax = plt.subplots(figsize=(10,10),    )
+    ax.set_title(str('Zoom out factor at %.3f' % delta_zoom))
     
     #delta_zoom = 0.01 # Edit this to modify the zooming
     

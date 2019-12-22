@@ -9,6 +9,7 @@ from utils import make_adj_list
 from path_finder import dijkstra_h
 from scipy.spatial import distance
 from dataset_loader import DatasetLoader
+from visualize import print_itinerary
 
 ''' This function is used to get an approximate distance between two nodes given their ids. 
     It will act as an alternative metric to the distances defined in
@@ -118,10 +119,13 @@ if __name__ == '__main__':
     
     travel_distance, itinerary = find_shortest_visiting_path(adj_list, path)
        
-    print('Distance: ', travel_distance)
-    print('Itinerary: ', itinerary)
+    #print('Distance: ', travel_distance)
+    #print('Itinerary: ', itinerary)
     
+    print('Printing map...')
     
+    for zoom in [0.001, 0.01, 0.1, 2, 4, 10, 14]:
+        c = print_itinerary(adj_list, itinerary, zoom)
     
     
     
