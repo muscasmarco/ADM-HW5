@@ -80,15 +80,15 @@ def best_tree(nodes, adj_list) :
 
     return(edge_set,distance)   
 
-
-''' Testing '''
-adj_list = make_adj_list()
-
-start_t = time.time()
-
-places = [1, 1050021, 1803, 1050020, 2590, 1802]
-res = best_tree(places,adj_list)
-end_t = time.time() - start_t
-
-print(res[0])
-print(end_t, ' seconds')
+if __name__ == '__main__':
+    ''' Testing '''
+    adj_list = make_adj_list()
+    
+    start_t = time.time()
+    
+    places = [1, 1050021, 1803, 1050020, 2590, 1802]
+    res = best_tree(places,adj_list)
+    end_t = time.time() - start_t
+    
+    print(res[0])
+    print(end_t, ' seconds')
