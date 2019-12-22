@@ -12,7 +12,7 @@ from geopandas import geopandas as gpd
 from dataset_loader import DatasetLoader
 from matplotlib.lines import Line2D
 
-def get_coordinates(node_id, coordinates_df):
+def get_coordinates(node_id, coordinates_df, delta_zoom=0.1):
     row = coordinates_df[coordinates_df['node-id'] == node_id]
     lat, long = row.latitude.values[0], row.longitude.values[0]
     return lat, long
@@ -46,11 +46,13 @@ def print_itinerary(adj_list, itinerary):
     
     fig, ax = plt.subplots(figsize=(20,20))
     
-    left_lim = min(points_df['lat'].values) - 0.1
-    right_lim = max(points_df['lat'].values) + 0.1
+    #delta_zoom = 0.01 # Edit this to modify the zooming
     
-    top_lim = max(points_df['long'].values) + 0.1
-    bottom_lim = min(points_df['long'].values) - 0.1
+    left_lim = min(points_df['lat'].values) - delta_zoom
+    right_lim = max(points_df['lat'].values) + delta_zoom
+    
+    top_lim = max(points_df['long'].values) + delta_zoom
+    bottom_lim = min(points_df['long'].values) - delta_zoom
 
     
     plt.xlim(left=left_lim)
