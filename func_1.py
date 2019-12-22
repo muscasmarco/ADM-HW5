@@ -6,45 +6,39 @@ import matplotlib.pyplot as plt
 
 from path_finder import get_n_steps_neighbours
 from dataset_loader import DatasetLoader
-from utils import make_adj_list
-
-# create Dataframes from .co and .gr files
-coord = DatasetLoader('coordinates').get_dataset()
-dist = DatasetLoader('distance').get_dataset()
-timedist = DatasetLoader('time-distance').get_dataset()
-
-# create dicts with all neighbors for each node
-neighbors = make_adj_list('distance')
-t_neighbors = make_adj_list('time-distance')
 
 # Now we define a function that takes in input: 
-# 1. One of the 2 dicts create above; 2. An Input-Node; 3. A cumulative counter = 0; 4. A threshold
+# 1. The adjacency list (go to utils.py to find out how to get it); 
+# 2. An Input-Node; 3. A cumulative counter = 0; 4. A threshold
 # It returns the list of nodes at smaller distance than the threshold from the Input-Node, corresponding to its' neighborhood
 
-def get_neighbourhood(adj_list, start, curr_d, d):
+def get_neighbourhood(adj_list, start, current_distance, max_distance):
     
     res = []
     
-    if curr_d > d:
+    if current_distance > max_distance:
         return []
     else:
-        
+        # Get the immediate neighbours
         neighbours = get_n_steps_neighbours(adj_list, start, 1)
         
+        # Here we are choosing only the neigbours that are closer than max_distance
         for neighbour in neighbours:
             distance = adj_list[start][neighbour]
             
-            if curr_d + distance <= d:
+            if current_distance + distance <= max_distance:
                 res.append(neighbour)
             
-            res.extend(get_neighbourhood(adj_list, neighbour, curr_d+distance, d))
+            # Now try to find the neighbours of the neighbours
+            res.extend(get_neighbourhood(adj_list, neighbour, current_distance+distance, max_distance))
         
-    return list(dict.fromkeys(res))
+    return list(dict.fromkeys(res)) # Because we do not want duplicates
 
 # From the result of the function above we can implement its Visualization Function that takes the same input variables.
 
-def vis_1(adj_list, start, curr_d, d):
-    
+def vis_1(adj_list, start, curr_d, d, distance_metric='distance'):
+    coordinates = DatasetLoader('coordinates').get_dataset()
+
     lst = get_neighbourhood(adj_list, start, curr_d, d)
     # Initialize the graph from the result of Functionality1 and the coordinates for the positions
     cnod = []
@@ -55,21 +49,25 @@ def vis_1(adj_list, start, curr_d, d):
     
     for k in lst:
         graph.add_edges_from([(k,key,{'distance':value}) for key,value in adj_list[k].items() if key in lst])
-        cnod.append(coord.iloc[k-1][1])
-        clat.append(coord.iloc[k-1][2])
-        clon.append(coord.iloc[k-1][3])
+        cnod.append(coordinates.iloc[k-1][1])
+        clat.append(coordinates.iloc[k-1][2])
+        clon.append(coordinates.iloc[k-1][3])
     
     # Change shapes and colors for nodes/edges 
     color_edge = ''
     shape_node = ''
     size_font = ''
     
-    if adj_list == neighbors:
+    if distance_metric == 'distance':
         color_edge = 'red'
         shape_node = 'o'
-    elif adj_list == t_neighbors:
+    elif distance_metric == 'time_distance':
         color_edge = 'purple'
         shape_node = 'D'
+    else:
+        color_edge = 'white'
+        shape_node = '^'
+        
     if len(lst) <= 10:
         size_font = 10
     else:
