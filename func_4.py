@@ -135,9 +135,8 @@ if __name__ == '__main__':
     
     '''Tests'''
     #path = [1,1803, 1802, 1050020, 1050021, 2590, 1805]
-    path = [1, 1803]#, 1050020, 2590, 1802, 1805, 1050021]
-    #path = [1,1803, 1050021, 1805]
-    
+    #path = [1, 1803]#, 1050020, 2590, 1802, 1805, 1050021]
+    path = [1,1803, 1050021, 1805]
     travel_distance, itinerary = find_shortest_visiting_path(adj_list, path)
        
     #print('Distance: ', travel_distance)
@@ -145,8 +144,8 @@ if __name__ == '__main__':
     
     print('Printing map...')
     
-    for zoom in [0.001, 0.01, 0.1, 2, 4, 10, 14]:
-        print_itinerary(adj_list, itinerary, zoom)
+    for zoom in [0.05]:#, 0.1, 2, 4, 10, 14]:
+        print_itinerary(adj_list, itinerary, zoom, render_roads=False, render_additional_roads=True)
     
     
     

@@ -110,11 +110,6 @@ def print_itinerary(adj_list, itinerary, delta_zoom=0.1, render_roads=True, rend
     # Plot the US map
     us_map_df.plot(ax=ax)
     
-    if render_roads:
-        # Render the checkpoints of the roads that are defined in the coordinates dataframe
-        plt.scatter([x/1000000 for x in coordinates['latitude'].values],
-                    [y/1000000 for y in coordinates['longitude'].values],
-                    color='black', alpha=1, s=0.2)
     
     if render_additional_roads:
         nodes = []
@@ -127,7 +122,7 @@ def print_itinerary(adj_list, itinerary, delta_zoom=0.1, render_roads=True, rend
             if p2 not in nodes:
                 nodes.append(p2)
                 
-        additional_roads = get_additional_roads(adj_list, nodes, nodes)
+        additional_roads = get_additional_roads(adj_list, nodes, nodes, 10)
         
         for i in range(0, len(additional_roads)):
             p1 = additional_roads[i][0]
@@ -142,7 +137,13 @@ def print_itinerary(adj_list, itinerary, delta_zoom=0.1, render_roads=True, rend
             
             # The coordinates are like (x_start, x_end), (y_start, y_end)
             plt.plot([c1_lat, c2_lat], [c1_long, c2_long], '-', color='white', linewidth=0.5)
-        
+    
+    if render_roads:
+       # Render the checkpoints of the roads that are defined in the coordinates dataframe
+       plt.scatter([x/1000000 for x in coordinates['latitude'].values],
+                   [y/1000000 for y in coordinates['longitude'].values],
+                   color='black', alpha=1, s=0.5)
+      
     # Render the nodes in the itinerary
     plt.scatter([x for x in points_df['lat'].values],
                 [y for y in points_df['long'].values],

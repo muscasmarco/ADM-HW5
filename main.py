@@ -69,7 +69,7 @@ print('Itinerary: ', itinerary)
 
 print('Printing map. Please wait to see all the plots.')
 for zoom in [0.001, 0.1, 2, 14]:
-    print_itinerary(adj_list, itinerary, zoom, render_roads = True)
+    print_itinerary(adj_list, itinerary, zoom, render_roads = True, render_additional_roads=True)
 print('Done.')
     
     
