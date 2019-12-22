@@ -146,7 +146,7 @@ if __name__ == '__main__':
     print('Printing map...')
     
     for zoom in [0.001, 0.01, 0.1, 2, 4, 10, 14]:
-            c = print_itinerary(adj_list, itinerary, zoom)
+        print_itinerary(adj_list, itinerary, zoom)
     
     
     
