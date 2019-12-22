@@ -17,12 +17,12 @@ def get_coordinates(node_id, coordinates_df):
     lat, long = row.latitude.values[0], row.longitude.values[0]
     return lat, long
 
-def print_itinerary(adj_list, itinerary, delta_zoom=0.1):
+def print_itinerary(adj_list, itinerary, delta_zoom=0.1, render_roads=True):
     coordinates = DatasetLoader('coordinates').dataset
     
     coord_points = []
 
-    for i in range(len(itinerary)-1):
+    for i in range(len(itinerary)):
         p1 = itinerary[i][0]
         p2 = itinerary[i][1]
         c1_lat, c1_long = get_coordinates(p1, coordinates)
@@ -44,7 +44,7 @@ def print_itinerary(adj_list, itinerary, delta_zoom=0.1):
     us_shp = '/home/marco/workspace/git/ADM-HW5/shapefiles/us/tl_2019_us_state.shp'
     us_map_df = gpd.read_file(us_shp)
     
-    fig, ax = plt.subplots(figsize=(10,10),    )
+    fig, ax = plt.subplots(figsize=(10,10))
     ax.set_title(str('Zoom out factor at %.3f' % delta_zoom))
     
     #delta_zoom = 0.01 # Edit this to modify the zooming
@@ -63,13 +63,19 @@ def print_itinerary(adj_list, itinerary, delta_zoom=0.1):
     
     us_map_df.plot(ax=ax)
     
+    if render_roads:
+        plt.scatter([x/1000000 for x in coordinates['latitude'].values],
+                    [y/1000000 for y in coordinates['longitude'].values],
+                    color='black', alpha=1, s=0.2)
+    
     plt.scatter([x for x in points_df['lat'].values],
                 [y for y in points_df['long'].values],
                 color='red',
                 marker='o',
                 alpha=0.6)
     
-    for i in range(0, len(itinerary)-1):
+    
+    for i in range(0, len(itinerary)):
         p1 = itinerary[i][0]
         p2 = itinerary[i][1]
         c1_lat, c1_long = get_coordinates(p1, coordinates)
@@ -80,8 +86,9 @@ def print_itinerary(adj_list, itinerary, delta_zoom=0.1):
         c2_lat /= 1000000
         c2_long /= 1000000
         
-        plt.plot([c1_lat, c2_lat], [c1_long, c2_long], 'ro-')
-
+        plt.plot([c1_lat, c2_lat], [c1_long, c2_long], '-', color='white')
+        
+        
     
     plt.show()
     
