@@ -10,6 +10,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from geopandas import geopandas as gpd
 from dataset_loader import DatasetLoader
+from path_finder import get_n_steps_neighbours
 
 ''' This function is here simply to provide the coordinates for a point
     (given its node id) in the TIGER/Line format. '''
@@ -18,6 +19,37 @@ def get_coordinates(node_id, coordinates_df):
     lat, long = row.latitude.values[0], row.longitude.values[0]
     return lat, long
 
+def get_additional_roads(adj_list, connected_nodes, target_nodes, limit_counter=5):
+    additional_roads = []
+    
+    if limit_counter > 0 and target_nodes != []:
+        for node in connected_nodes:
+            neighbours = get_n_steps_neighbours(adj_list, node, 1)
+            
+            additional_roads.extend([(node, n) for n in neighbours])
+            
+            #print(additional_roads)
+            '''    
+            check if list1 contains all elements in list2
+            '''
+            
+            new_targets = target_nodes + [] # Avoid removing by reference
+            
+            for t in target_nodes:
+                if t in neighbours:
+                    new_targets.remove(t)
+                
+            if target_nodes == [] or neighbours == []:
+                return additional_roads
+            else:
+                additional_roads.extend(get_additional_roads(adj_list, neighbours, new_targets, limit_counter-1))
+                
+    return list(dict.fromkeys(additional_roads))
+        
+ 
+
+
+
 ''' This function will render the US map, then will plot the itinerary 
     (which is a list of edges). Additionally, via the render_roads parameter,
     you can plot the various roads of the US!
@@ -25,7 +57,7 @@ def get_coordinates(node_id, coordinates_df):
     since printing the road checkpoints is time consuming. 
     The edges connecting the road checkpoints were not rendered for the same
     reason. ''' 
-def print_itinerary(adj_list, itinerary, delta_zoom=0.1, render_roads=True, us_shp_root='./shapefiles/us/'):
+def print_itinerary(adj_list, itinerary, delta_zoom=0.1, render_roads=True, render_additional_roads=False, us_shp_root='./shapefiles/us/'):
     us_shp = us_shp_root + 'tl_2019_us_state.shp'
     us_map_df = gpd.read_file(us_shp)
     
@@ -84,6 +116,33 @@ def print_itinerary(adj_list, itinerary, delta_zoom=0.1, render_roads=True, us_s
                     [y/1000000 for y in coordinates['longitude'].values],
                     color='black', alpha=1, s=0.2)
     
+    if render_additional_roads:
+        nodes = []
+        for edge in itinerary:
+            p1 = edge[0]
+            p2 = edge[1]
+            
+            if p1 not in nodes:
+                nodes.append(p1)
+            if p2 not in nodes:
+                nodes.append(p2)
+                
+        additional_roads = get_additional_roads(adj_list, nodes, nodes)
+        
+        for i in range(0, len(additional_roads)):
+            p1 = additional_roads[i][0]
+            p2 = additional_roads[i][1]
+            c1_lat, c1_long = get_coordinates(p1, coordinates)
+            c2_lat, c2_long = get_coordinates(p2, coordinates)
+        
+            c1_lat /= 1000000
+            c1_long /= 1000000
+            c2_lat /= 1000000
+            c2_long /= 1000000
+            
+            # The coordinates are like (x_start, x_end), (y_start, y_end)
+            plt.plot([c1_lat, c2_lat], [c1_long, c2_long], '-', color='white', linewidth=0.5)
+        
     # Render the nodes in the itinerary
     plt.scatter([x for x in points_df['lat'].values],
                 [y for y in points_df['long'].values],
@@ -91,7 +150,7 @@ def print_itinerary(adj_list, itinerary, delta_zoom=0.1, render_roads=True, us_s
                 marker='o',
                 alpha=0.6)
     
-    # Print the edges
+    # Print the itinerary edges
     for i in range(0, len(itinerary)):
         p1 = itinerary[i][0]
         p2 = itinerary[i][1]
@@ -104,8 +163,9 @@ def print_itinerary(adj_list, itinerary, delta_zoom=0.1, render_roads=True, us_s
         c2_long /= 1000000
         
         # The coordinates are like (x_start, x_end), (y_start, y_end)
-        plt.plot([c1_lat, c2_lat], [c1_long, c2_long], '-', color='white')
-        
+        plt.plot([c1_lat, c2_lat], [c1_long, c2_long], '-', color='red')
+    
+
     plt.show()
     
     
