@@ -33,58 +33,65 @@ def print_itinerary(adj_list, itinerary, delta_zoom=0.1, render_roads=True, us_s
     
     coord_points = []
 
+
+    # Let's first print the itinerary (which is a list of edges)
     for i in range(len(itinerary)):
-        p1 = itinerary[i][0]
-        p2 = itinerary[i][1]
+        p1 = itinerary[i][0] # Get node id 1
+        p2 = itinerary[i][1] # Get node id 2
         c1_lat, c1_long = get_coordinates(p1, coordinates)
         c2_lat, c2_long = get_coordinates(p2, coordinates)
     
+        # Covert them so we can plot them in the map we have
         c1_lat /= 1000000
         c1_long /= 1000000
         c2_lat /= 1000000
         c2_long /= 1000000
     
+        # Prepare for making the dataframe
         coord_points.append((c1_lat, c1_long))
         coord_points.append((c2_lat, c2_long))
 
     cols = ['lat', 'long']
-    points_df = pd.DataFrame(data=coord_points, columns=cols)
+    points_df = pd.DataFrame(data=coord_points, columns=cols)# Convert the list of coordinates into a dataframe
+
     #print(points_df)
     
-    ''' Load shapefile for US '''
-    
+    ''' Printing '''    
     
     fig, ax = plt.subplots(figsize=(10,10))
     ax.set_title(str('Zoom out factor at %.3f' % delta_zoom))
     
     #delta_zoom = 0.01 # Edit this to modify the zooming
     
+    # The following operations set the zoom by cropping the plot
     left_lim = min(points_df['lat'].values) - delta_zoom
-    right_lim = max(points_df['lat'].values) + delta_zoom
-    
+    right_lim = max(points_df['lat'].values) + delta_zoom 
     top_lim = max(points_df['long'].values) + delta_zoom
     bottom_lim = min(points_df['long'].values) - delta_zoom
-
-    
+  
     plt.xlim(left=left_lim)
     plt.xlim(right=right_lim)
     plt.ylim(top=top_lim)
     plt.ylim(bottom=bottom_lim)
     
+    
+    # Plot the US map
     us_map_df.plot(ax=ax)
     
     if render_roads:
+        # Render the checkpoints of the roads that are defined in the coordinates dataframe
         plt.scatter([x/1000000 for x in coordinates['latitude'].values],
                     [y/1000000 for y in coordinates['longitude'].values],
                     color='black', alpha=1, s=0.2)
     
+    # Render the nodes in the itinerary
     plt.scatter([x for x in points_df['lat'].values],
                 [y for y in points_df['long'].values],
                 color='red',
                 marker='o',
                 alpha=0.6)
     
-    
+    # Print the edges
     for i in range(0, len(itinerary)):
         p1 = itinerary[i][0]
         p2 = itinerary[i][1]
@@ -96,10 +103,9 @@ def print_itinerary(adj_list, itinerary, delta_zoom=0.1, render_roads=True, us_s
         c2_lat /= 1000000
         c2_long /= 1000000
         
+        # The coordinates are like (x_start, x_end), (y_start, y_end)
         plt.plot([c1_lat, c2_lat], [c1_long, c2_long], '-', color='white')
         
-        
-    
     plt.show()
     
     
