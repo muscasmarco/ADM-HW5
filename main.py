@@ -69,14 +69,14 @@ if adj_list != None:
     if func == 3 :
         
         initial = int(input("Please insert the starting point: "))
-        node_set = list(map(int,input("Please insert the sequence of nodes: ")))
+        node_set = list(map(int,input("Please insert the sequence of nodes: ").split(' ')))
         itinerary = shortest_ordered_path(initial, node_set, adj_list)
         
         print("Shortest walk: " , itinerary)
         
         print('Printing map. Please wait to see all the plots.')
         for zoom in [0.001, 0.1, 2, 14]:
-            print_itinerary(adj_list, itinerary, zoom, render_roads = True, render_additional_roads=False)
+            print_itinerary(adj_list, itinerary, zoom, render_roads = True, render_additional_roads=True)
         print('Done.')
         
     
@@ -94,8 +94,9 @@ if adj_list != None:
     '''
     if func == 4 :
         initial = int(input("Please insert the start point : "))
-        nodes = list(map(int,input("Please insert the sequence of nodes with a distance: ")))
-        path = nodes.insert(0,initial) #get the list of all nodes
+        nodes = list(map(int,input("Please insert the sequence of nodes with a distance: ").split(" ")))
+        nodes.insert(0,initial) #get the list of all nodes
+        path = nodes
         
         travel_distance, itinerary = find_shortest_visiting_path(adj_list, path)
     
