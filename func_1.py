@@ -28,31 +28,39 @@ def get_neighbourhood(adj_list, start, current_distance, max_distance):
             
             if current_distance + distance <= max_distance:
                 res.append(neighbour)
-            
+
             # Now try to find the neighbours of the neighbours
             res.extend(get_neighbourhood(adj_list, neighbour, current_distance+distance, max_distance))
+    
+    result = list(dict.fromkeys(res)) # Because we do not want 
+    if start in result:
+        result.remove(start)
         
-    return list(dict.fromkeys(res)) # Because we do not want duplicates
+    return result
 
-# From the result of the function above we can implement its Visualization Function that takes the same input variables.
+# From the result of the function above we can implement its Visualization Function.
 
-def vis_1(adj_list, start, curr_d, d, distance_metric='distance'):
+def vis_1(adj_list, start, neighbours, distance_metric='distance'):
     coordinates = DatasetLoader('coordinates').get_dataset()
 
-    lst = get_neighbourhood(adj_list, start, curr_d, d)
+    #lst = get_neighbourhood(adj_list, start, curr_d, d)
     # Initialize the graph from the result of Functionality1 and the coordinates for the positions
     cnod = []
     clat = []
     clon = []
     graph = nx.Graph()
-    graph.add_nodes_from(lst)
+    graph.add_nodes_from([start])
+    graph.add_nodes_from(neighbours)
     
-    for k in lst:
-        graph.add_edges_from([(k,key,{'distance':value}) for key,value in adj_list[k].items() if key in lst])
-        cnod.append(coordinates.iloc[k-1][1])
-        clat.append(coordinates.iloc[k-1][2])
-        clon.append(coordinates.iloc[k-1][3])
-    
+    all_nodes = [start] + neighbours
+  
+    for node_id in all_nodes:
+        graph.add_edges_from([(node_id, key,{'distance':value}) for key,value in adj_list[node_id].items() if key in all_nodes])
+        
+        cnod.append(coordinates[coordinates['node-id'] == node_id]['node-id'].values[0])
+        clat.append(coordinates[coordinates['node-id'] == node_id]['latitude'].values[0])
+        clon.append(coordinates[coordinates['node-id'] == node_id]['longitude'].values[0])
+        
     # Change shapes and colors for nodes/edges 
     color_edge = ''
     shape_node = ''
@@ -65,22 +73,21 @@ def vis_1(adj_list, start, curr_d, d, distance_metric='distance'):
         color_edge = 'purple'
         shape_node = 'D'
     else:
-        color_edge = 'white'
+        color_edge = 'blue'
         shape_node = '^'
         
-    if len(lst) <= 10:
+    if len(neighbours) <= 10:
         size_font = 10
     else:
         size_font = 9
         
         
-    # Visualize the Map, highlighting the Input-Node    
-    pos = {cnod[i]:[clat[i], clon[i]] for i in range(len(lst))}
-    nx.draw(graph, pos, node_color='lightgreen', node_size = 150, node_shape = shape_node,
+    # Visualize the Map, highlighting the Input-Node
+    pos = {cnod[i]:[clat[i], clon[i]] for i in range(len(all_nodes))}
+    
+    color_map = ['yellow'] + (['lightgreen'] * (len(all_nodes)-1))
+    nx.draw(graph, pos, node_color=color_map, node_size = 150, node_shape = shape_node,
             edge_color = color_edge, with_labels = True, font_size = size_font)
-    gstart = nx.Graph()
-    gstart.add_node(start)
-    nx.draw(gstart,pos,node_color='yellow', node_size = 225, node_shape = shape_node)
     
     plt.show()
         
