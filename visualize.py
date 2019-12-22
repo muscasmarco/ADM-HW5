@@ -68,7 +68,19 @@ def print_itinerary(adj_list, itinerary, delta_zoom=0.1):
                 marker='o',
                 alpha=0.6)
     
+    for i in range(0, len(itinerary)-1):
+        p1 = itinerary[i][0]
+        p2 = itinerary[i][1]
+        c1_lat, c1_long = get_coordinates(p1, coordinates)
+        c2_lat, c2_long = get_coordinates(p2, coordinates)
     
+        c1_lat /= 1000000
+        c1_long /= 1000000
+        c2_lat /= 1000000
+        c2_long /= 1000000
+        
+        plt.plot([c1_lat, c2_lat], [c1_long, c2_long], 'ro-')
+
     
     plt.show()
     
