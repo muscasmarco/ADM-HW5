@@ -10,14 +10,25 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from geopandas import geopandas as gpd
 from dataset_loader import DatasetLoader
-from matplotlib.lines import Line2D
 
+''' This function is here simply to provide the coordinates for a point
+    (given its node id) in the TIGER/Line format. '''
 def get_coordinates(node_id, coordinates_df):
     row = coordinates_df[coordinates_df['node-id'] == node_id]
     lat, long = row.latitude.values[0], row.longitude.values[0]
     return lat, long
 
-def print_itinerary(adj_list, itinerary, delta_zoom=0.1, render_roads=True):
+''' This function will render the US map, then will plot the itinerary 
+    (which is a list of edges). Additionally, via the render_roads parameter,
+    you can plot the various roads of the US!
+    It's more convenient to set it to false when you have time constraints, 
+    since printing the road checkpoints is time consuming. 
+    The edges connecting the road checkpoints were not rendered for the same
+    reason. ''' 
+def print_itinerary(adj_list, itinerary, delta_zoom=0.1, render_roads=True, us_shp_root='./shapefiles/us/'):
+    us_shp = us_shp_root + 'tl_2019_us_state.shp'
+    us_map_df = gpd.read_file(us_shp)
+    
     coordinates = DatasetLoader('coordinates').dataset
     
     coord_points = []
@@ -41,8 +52,7 @@ def print_itinerary(adj_list, itinerary, delta_zoom=0.1, render_roads=True):
     #print(points_df)
     
     ''' Load shapefile for US '''
-    us_shp = '/home/marco/workspace/git/ADM-HW5/shapefiles/us/tl_2019_us_state.shp'
-    us_map_df = gpd.read_file(us_shp)
+    
     
     fig, ax = plt.subplots(figsize=(10,10))
     ax.set_title(str('Zoom out factor at %.3f' % delta_zoom))

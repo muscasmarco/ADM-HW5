@@ -14,7 +14,6 @@ from visualize import print_itinerary
 ''' This function is used to get an approximate distance between two nodes given their ids. 
     It will act as an alternative metric to the distances defined in
     the datasets (distance, time distance and network distance) '''
-    
 def distance_nodes(p1, p2, coordinates_df):
             
     p1_row = coordinates_df[coordinates_df['node-id'] == p1]
@@ -34,8 +33,7 @@ def distance_nodes(p1, p2, coordinates_df):
     We'll need to define a starting point (start) and a destination (end).
     
     In the list (between) will end up all the other nodes we want to visit
-    before arriving at the destination.
-''' 
+    before arriving at the destination.''' 
 def get_short_between_path(between, start, end, coordinates_df):
     
     if len(between) == 0: # Base case #1.
@@ -104,6 +102,29 @@ def find_shortest_visiting_path(adj_list, path):
     
     return total_distance, total_path_no_linked_dup
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     
     ''' Setup '''
