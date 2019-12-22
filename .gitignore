@@ -1,5 +1,7 @@
 ./dataset/*.co
 ./dataset/*.gr
+shapefiles/*
+shapefiles/
 *.pkl
 
 __pycache__/*
