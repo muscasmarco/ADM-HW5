@@ -12,12 +12,12 @@ from geopandas import geopandas as gpd
 from dataset_loader import DatasetLoader
 from matplotlib.lines import Line2D
 
-def get_coordinates(node_id, coordinates_df, delta_zoom=0.1):
+def get_coordinates(node_id, coordinates_df):
     row = coordinates_df[coordinates_df['node-id'] == node_id]
     lat, long = row.latitude.values[0], row.longitude.values[0]
     return lat, long
 
-def print_itinerary(adj_list, itinerary):
+def print_itinerary(adj_list, itinerary, delta_zoom=0.1):
     coordinates = DatasetLoader('coordinates').dataset
     
     coord_points = []
